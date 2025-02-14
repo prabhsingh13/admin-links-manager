@@ -1,11 +1,11 @@
-const admin = require('firebase-admin');
+import admin from "firebase-admin";
 
-// Initialize Firebase only if not already initialized
+const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS);
+
 if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert(require('./firebase-admin.json')),
-    });
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
 }
 
-const db = admin.firestore();
-module.exports = db;
+export default admin.firestore();
