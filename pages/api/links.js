@@ -1,30 +1,28 @@
-import fs from 'fs';
-import path from 'path';
+import db from '../../firebase';
 
-// API to get links
-export default function handler(req, res) {
-    const filePath = path.join(process.cwd(), 'public', 'adminLinks.json');
-
+export default async function handler(req, res) {
     if (req.method === 'GET') {
         try {
-            const data = fs.readFileSync(filePath, 'utf8');
-            const jsonData = JSON.parse(data);
-            res.status(200).json(jsonData);
+            const snapshot = await db.collection('adminLinks').orderBy("timestamp", "desc").get();
+            const links = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            return res.status(200).json(links);
         } catch (error) {
-            res.status(500).json({ error: "Failed to read data" });
+            return res.status(500).json({ error: "Failed to fetch links" });
         }
     } else if (req.method === 'POST') {
         try {
-            const { links } = req.body;
-            if (!links) return res.status(400).json({ error: "Invalid data" });
-
-            fs.writeFileSync(filePath, JSON.stringify({ links }, null, 2));
-            res.status(200).json({ message: "Links updated successfully" });
+            const { name, url, note } = req.body;
+            await db.collection('adminLinks').add({
+                name,
+                url,
+                note: note || "",
+                timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            return res.status(201).json({ message: "Link added successfully" });
         } catch (error) {
-            res.status(500).json({ error: "Failed to update data" });
+            return res.status(500).json({ error: "Failed to add link" });
         }
     } else {
-        res.setHeader('Allow', ['GET', 'POST']);
-        res.status(405).end(`Method ${req.method} Not Allowed`);
+        return res.status(405).json({ error: "Method Not Allowed" });
     }
 }
