@@ -11,7 +11,7 @@ A sleek, modern, and responsive admin panel built with HTML, CSS, and JavaScript
 
 
 ## 📂 Installation  
-Clone the repository and open the `index.html` file in your browser.  
+Clone the repository and open the project in your browser.  
 
 ```bash
 git clone https://github.com/prabhsingh13/admin-panel-responsive.git
